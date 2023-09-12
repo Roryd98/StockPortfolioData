@@ -11,7 +11,7 @@ def get_friday_closes_with_dates(stock_symbols):
     for symbol in stock_symbols:
         try:
             # Fetch stock data using Yahoo Finance
-            data = yf.download(symbol, period="182d", interval="1d")
+            data = yf.download(symbol, period="26wk", interval="1d")
 
             # Filter for Fridays (assuming last day of the week is Friday)
             friday_data = data[data.index.dayofweek == 4]
@@ -42,4 +42,3 @@ pivot_df = pivot_df[desired_order]
 
 # Save the pivoted DataFrame to an Excel (XLSX) file
 pivot_df.to_excel("stock_friday_closes.xlsx")
-

@@ -1,0 +1,41 @@
+import yfinance as yf
+import pandas as pd
+
+# List of stock symbols - .L is for London stock exchange. Needed for UK stocks. To be taken as is on Yahoo Finance
+stock_symbols = ["ALW.L", "STJ.L", "BWY.L", "BBOX.L", "INVP.L", "GAW.L", "HBR.L", "PCT.L", "RS1.L", "IGG.L"]
+
+# Function to get closing prices and dates
+def closes_with_dates(stock_symbols):
+    data_list = []
+
+    for symbol in stock_symbols:
+        try:
+            # Fetch stock data using Yahoo Finance
+            data = yf.download(symbol, period="5y", interval="1d")
+
+            # Extract dates and closing prices
+            dates = data.index.strftime("%Y-%m-%d")
+            closes = data["Close"].tolist()
+
+            # Append data to the list
+            data_list.extend(list(zip([symbol] * len(dates), dates, closes)))
+        except Exception as e:
+            print(f"Error fetching data for {symbol}: {str(e)}")
+
+    return data_list
+
+# Get Friday closing prices and dates for the list of stocks
+data_list = closes_with_dates(stock_symbols)
+
+# Convert the result to a DataFrame
+df = pd.DataFrame(data_list, columns=["Symbol", "Date", "Friday Close"])
+
+# Pivot the DataFrame to have tickers as columns
+pivot_df = df.pivot(index="Date", columns="Symbol", values="Friday Close")
+
+# Reorder columns based on the original order of stock_symbols
+desired_order = stock_symbols
+pivot_df = pivot_df[desired_order]
+
+# Save the pivoted DataFrame to an Excel (XLSX) file
+pivot_df.to_excel("stock_closes.xlsx")
